@@ -1,0 +1,206 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @unique
+  passwordHash String
+  phoneNumber  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     Session[]
+  qrChallenges QrChallenge[]
+  otpChallenges OtpChallenge[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model QrChallenge {
+  id              String    @id @default(uuid())
+  challengeToken  String    @unique
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String    @default("PENDING") // PENDING, SCANNED, VERIFIED, EXPIRED
+  deviceSignature String?
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  scannedAt       DateTime?
+  verifiedAt      DateTime?
+
+  @@index([challengeToken])
+  @@index([status])
+}
+
+model OtpChallenge {
+  id             String    @id @default(uuid())
+  challengeToken String    @unique
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash       String
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(5)
+  status         String    @default("PENDING") // PENDING, VERIFIED, EXPIRED, LOCKED
+  expiresAt      DateTime
+  createdAt      DateTime  @default(now())
+  verifiedAt     DateTime?
+
+  @@index([challengeToken])
+  @@index([status])
+}
+
+model Experiment {
+  id              String   @id @default(uuid())
+  code            String   @unique // e.g. EXP-001
+  title           String
+  description     String?
+  hypothesis      String
+  authMethod      String   // PASSWORD, OTP, QR, QR_OTP
+  loadModel       String   // CLOSED_CONCURRENCY, OPEN_ARRIVAL_RATE
+  targetVUs       Int      @default(1)
+  targetRate      Float?   // for open model (req/s)
+  durationSec     Int      @default(10)
+  repetitions     Int      @default(1)
+  networkProfile  String   @default("LAN_0MS")
+  addedLatencyMs  Int      @default(0)
+  packetLossPct   Float    @default(0.0)
+  cacheEnabled    Boolean  @default(false)
+  status          String   @default("CONFIGURED") // CONFIGURED, WARMING, RUNNING, COMPLETED, FAILED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  benchmarkRuns      BenchmarkRun[]
+  statisticalResults StatisticalResult[]
+
+  @@index([authMethod, status])
+}
+
+model BenchmarkRun {
+  id              String    @id @default(uuid())
+  experimentId    String
+  experiment      Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  trialNumber     Int       @default(1)
+  runStatus       String    @default("RUNNING") // RUNNING, COMPLETED, FAILED
+  startTime       DateTime  @default(now())
+  endTime         DateTime?
+  totalRequests   Int       @default(0)
+  successfulAuths Int       @default(0)
+  failedAuths     Int       @default(0)
+  timeouts        Int       @default(0)
+  
+  meanLatencyMs   Float?
+  medianLatencyMs Float?
+  p90LatencyMs    Float?
+  p95LatencyMs    Float?
+  p99LatencyMs    Float?
+  maxLatencyMs    Float?
+  throughputRps   Float?
+
+  traces          AuthenticationTrace[]
+  resourceMetrics ResourceMetric[]
+
+  @@index([experimentId, trialNumber])
+}
+
+model AuthenticationTrace {
+  id              String         @id @default(uuid())
+  traceId         String         @unique // TRC-xxxxxx
+  benchmarkRunId  String?
+  benchmarkRun    BenchmarkRun?  @relation(fields: [benchmarkRunId], references: [id], onDelete: Cascade)
+  authMethod      String         // PASSWORD, OTP, QR, QR_OTP
+  participantType String         @default("SYNTHETIC") // SYNTHETIC, HUMAN
+  startNano       String         // Monotonic nanosecond as BigInt string
+  endNano         String         // Monotonic nanosecond as BigInt string
+  durationMs      Float
+  statusCode      Int            @default(200)
+  success         Boolean        @default(true)
+  errorMessage    String?
+  isWarm          Boolean        @default(true)
+  outlierClass    String         @default("VALID") // VALID, SYSTEM_SPIKE, INVALID
+
+  stages          AuthenticationStage[]
+
+  @@index([benchmarkRunId, authMethod, success])
+  @@index([durationMs])
+}
+
+model AuthenticationStage {
+  id            String              @id @default(uuid())
+  traceId       String
+  trace         AuthenticationTrace @relation(fields: [traceId], references: [id], onDelete: Cascade)
+  stageName     String              // QR_GEN, QR_VAL, OTP_GEN, OTP_VAL, DB_QUERY, SESSION_CREATE
+  sequenceOrder Int                 @default(1)
+  startNano     String
+  endNano       String
+  durationMs    Float
+  status        String              @default("SUCCESS") // SUCCESS, FAILED, TIMEOUT
+  metadataJson  String?
+
+  @@index([traceId, stageName])
+}
+
+model ResourceMetric {
+  id             String       @id @default(uuid())
+  benchmarkRunId String
+  benchmarkRun   BenchmarkRun @relation(fields: [benchmarkRunId], references: [id], onDelete: Cascade)
+  timestamp      DateTime     @default(now())
+  cpuPercent     Float
+  memoryRssMb    Float
+  memoryHeapMb   Float
+  eventLoopLagMs Float
+  activeDbConns  Int          @default(1)
+
+  @@index([benchmarkRunId, timestamp])
+}
+
+model StatisticalResult {
+  id              String     @id @default(uuid())
+  experimentId    String
+  experiment      Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  metricName      String
+  sampleSizeN     Int
+  mean            Float
+  median          Float
+  stdDev          Float
+  ci95Lower       Float
+  ci95Upper       Float
+  testName        String?
+  testStatistic   Float?
+  pValue          Float?
+  effectSizeName  String?
+  effectSizeValue Float?
+  interpretation  String?
+  generatedAt     DateTime   @default(now())
+
+  @@index([experimentId, metricName])
+}
+
+model HumanInteractionTrial {
+  id                     String   @id @default(uuid())
+  participantId          String
+  authMethod             String   // QR, OTP, QR_OTP
+  qrScanDurationMs       Float?
+  otpEntryDurationMs     Float?
+  totalHumanDurationMs   Float
+  retries                Int      @default(0)
+  success                Boolean  @default(true)
+  abandoned              Boolean  @default(false)
+  timestamp              DateTime @default(now())
+
+  @@index([authMethod, success])
+}
