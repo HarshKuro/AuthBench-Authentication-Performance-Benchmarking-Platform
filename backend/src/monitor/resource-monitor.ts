@@ -71,19 +71,16 @@ export class ResourceMonitor {
         this.lastCpuUsage = process.cpuUsage();
         this.lastCpuTime = now;
 
-        // Calculate CPU percentage across available logical cores
         const totalCpuMicros = currentCpuUsage.user + currentCpuUsage.system;
         const numCores = os.cpus().length || 1;
         const cpuPercent = parseFloat(
           Math.min(100, (totalCpuMicros / (elapsedMs * 1000 * numCores)) * 100).toFixed(1)
         );
 
-        // Memory metrics
         const mem = process.memoryUsage();
         const memoryRssMb = parseFloat((mem.rss / (1024 * 1024)).toFixed(2));
         const memoryHeapMb = parseFloat((mem.heapUsed / (1024 * 1024)).toFixed(2));
 
-        // Event loop delay
         const eventLoopLagMs = parseFloat(
           (this.elHistogram.mean / 1_000_000).toFixed(2)
         );
@@ -95,19 +92,17 @@ export class ResourceMonitor {
           memoryRssMb,
           memoryHeapMb,
           eventLoopLagMs,
-          activeDbConns: 1, // Base pool
+          activeDbConns: 1,
         };
 
-        // Notify listeners (SSE feeds)
         for (const listener of this.listeners) {
           listener(this.latestSnapshot);
         }
 
-        // If benchmark run is active, persist to database
         if (this.activeBenchmarkRunId) {
           await prisma.resourceMetric.create({
             data: {
-              benchmarkRunId: this.activeBenchmarkRunId,
+              benchmarkRun: { connect: { id: this.activeBenchmarkRunId } },
               cpuPercent,
               memoryRssMb,
               memoryHeapMb,
@@ -117,7 +112,7 @@ export class ResourceMonitor {
           });
         }
       } catch (err) {
-        console.error('Resource monitor sampling error:', err);
+        // Silently ignore transient sampling errors
       }
     }, 500);
   }
