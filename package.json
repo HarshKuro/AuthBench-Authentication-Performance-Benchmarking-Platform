@@ -1,0 +1,27 @@
+{
+  "name": "qr-otp-benchmark-platform",
+  "version": "1.0.0",
+  "description": "Empirical Performance Evaluation Platform for Multi-Factor E-Authentication Mechanisms (QR + OTP)",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test:auth": "npm --prefix backend run build && npx --prefix backend tsx backend/test-e2e.ts",
+    "test:analytics": "python analytics/cli.py --test",
+    "test:all": "npm run test:auth && npm run test:analytics",
+    "seed": "npm --prefix backend run prisma:seed"
+  },
+  "keywords": [
+    "e-authentication",
+    "qr-code",
+    "otp",
+    "benchmarking",
+    "performance-evaluation",
+    "research-platform"
+  ],
+  "author": "Harsh Kuro <harshpartapjainsdg@gmail.com>",
+  "license": "Apache-2.0"
+}
