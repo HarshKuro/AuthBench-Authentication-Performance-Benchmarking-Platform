@@ -1,0 +1,47 @@
+{
+  "manifestVersion": "1.0.0",
+  "experimentId": "EXP-CAMPAIGN-POSTGRESQL-2026",
+  "timestamp": "2026-09-27T05:55:39.000Z",
+  "researchTopic": "Empirical Performance Evaluation of Multi-Factor E-Authentication Mechanisms Using QR Codes and OTP",
+  "author": "Harsh Kuro <harshpartapjainsdg@gmail.com>",
+  "systemSpecification": {
+    "hostOperatingSystem": "Windows 11 x86_64",
+    "cpuArchitecture": "x86_64 (AMD/Intel)",
+    "database": {
+      "engine": "PostgreSQL",
+      "version": "18.3.0",
+      "databaseName": "qrotp_benchmark",
+      "schema": "public",
+      "connectionPoolSize": 20
+    },
+    "runtime": {
+      "nodeVersion": "v24.13.0",
+      "npmVersion": "11.11.0",
+      "pythonVersion": "3.14.3"
+    },
+    "frameworks": {
+      "backendServer": "Fastify v4.28.1 / TypeScript v5.7.2",
+      "orm": "Prisma Client v5.22.0",
+      "analyticsEngine": "SciPy v1.17.0 / NumPy v2.4.2 / Pandas v3.0.0",
+      "frontendDashboard": "Vite v5.4.11 / React v18.3.1 / Recharts v2.13.3 / Tailwind CSS v3.4.15"
+    },
+    "instrumentationClock": {
+      "clockSource": "process.hrtime.bigint()",
+      "precision": "1 nanosecond (hardware monotonic counter)",
+      "monotonic": true,
+      "ntpSkewVulnerable": false
+    }
+  },
+  "datasetMetrics": {
+    "totalTracesRecorded": 4153,
+    "warmTracesAnalyzed": 3973,
+    "totalMicroStagesRecorded": 35058,
+    "experimentalConditions": 12,
+    "concurrencyTiersTested": [1, 10, 25],
+    "methodsEvaluated": ["PASSWORD", "OTP", "QR", "QR_OTP"]
+  },
+  "gitCommit": "cf2958e",
+  "citation": {
+    "bibtex": "@article{kuro2026eauthentication,\n  title={Empirical Performance Evaluation of Multi-Factor E-Authentication Mechanisms Using QR Codes and OTP},\n  author={Kuro, Harsh},\n  journal={IEEE Transactions on Dependable and Secure Computing},\n  year={2026},\n  note={PostgreSQL 18.3 Benchmarking Artifact}\n}"
+  }
+}

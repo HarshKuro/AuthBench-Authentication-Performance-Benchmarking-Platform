@@ -1,0 +1,21 @@
+% Table 7: Formal Hypothesis Battery and Non-Parametric Significance Testing Results
+% Evaluated across 3,973 observations in PostgreSQL 18.3 using SciPy 1.17.0
+\begin{table*}[t]
+\centering
+\small
+\caption{Non-Parametric Hypothesis Tests, Effect Sizes, and Statistical Decisions ($\alpha = 0.05$ with Bonferroni-Holm Adjustment)}
+\label{tab:hypothesis_testing}
+\begin{tabular}{lp{4.2cm}lrrrrl}
+\hline
+\textbf{Hypothesis} & \textbf{Null Hypothesis ($H_0$)} & \textbf{Statistical Test} & \textbf{Statistic} & \textbf{p-value} & \textbf{Cliff's $\delta$} & \textbf{Cohen's $d$} & \textbf{Decision} \\
+\hline
+Omnibus $H_1$ & $\mu_{\text{PWD}} = \mu_{\text{OTP}} = \mu_{\text{QR}} = \mu_{\text{QR+OTP}}$ & Kruskal-Wallis & $H = 1544.22$ & $< 10^{-15}$ & --- & --- & Reject $H_0$ \\
+Pairwise Contrast & $\mu_{\text{PWD}} = \mu_{\text{QR+OTP}}$ & Mann-Whitney $U$ & $U = 193547$ & $1.85 \times 10^{-72}$ & $0.7785$ (Large) & $2.5415$ & Reject $H_0$ \\
+Pairwise Contrast & $\mu_{\text{OTP}} = \mu_{\text{QR+OTP}}$ & Mann-Whitney $U$ & $U = 61250$ & $< 10^{-150}$ & $-0.9182$ (Large) & $-0.7573$ & Reject $H_0$ \\
+Pairwise Contrast & $\mu_{\text{QR}} = \mu_{\text{QR+OTP}}$ & Mann-Whitney $U$ & $U = 373638$ & $8.65 \times 10^{-63}$ & $-0.4087$ (Medium) & $-0.5262$ & Reject $H_0$ \\
+Pairwise Contrast & $\mu_{\text{PWD}} = \mu_{\text{OTP}}$ & Mann-Whitney $U$ & $U = 320548$ & $2.27 \times 10^{-120}$ & $0.9788$ (Large) & $3.6366$ & Reject $H_0$ \\
+Pairwise Contrast & $\mu_{\text{OTP}} = \mu_{\text{QR}}$ & Mann-Whitney $U$ & $U = 812827$ & $7.80 \times 10^{-10}$ & $-0.1358$ (Negligible) & $-0.3796$ & Reject $H_0$ \\
+\hline
+\multicolumn{8}{l}{\footnotesize Bonferroni-adjusted significance threshold: $\alpha_{\text{adjusted}} = 0.05 / 6 = 0.00833$. Degrees of freedom for omnibus test: $\nu = 3$.} \\
+\end{tabular}
+\end{table*}

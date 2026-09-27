@@ -1,0 +1,19 @@
+% Table 3: Empirical Latency Distribution and Tail Percentiles Across Authentication Methods
+% Generated from 3,973 warm steady-state authentication trials on PostgreSQL 18.3
+\begin{table*}[t]
+\centering
+\small
+\caption{Empirical Latency Distributions, Tail Percentiles, and 95\% BCa Bootstrap Confidence Intervals Across Evaluated Authentication Mechanisms}
+\label{tab:latency_distributions}
+\begin{tabular}{lrrrrrrrrr}
+\hline
+\textbf{Authentication Method} & \textbf{N} & \textbf{Mean (ms)} & \textbf{Median (ms)} & \textbf{SD (ms)} & \textbf{P25 (ms)} & \textbf{P75 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} & \textbf{95\% BCa CI (ms)} \\
+\hline
+Password (Baseline Control)    & 217  & 831.60 & 579.94 & 580.57 & 489.07 & 1457.85 & 1744.91 & 1745.05 & [552.58, 676.35] \\
+OTP (One-Time Password)        & 1493 & 44.70  & 34.28  & 69.31  & 30.72  & 35.94   & 54.37   & 527.93  & [33.97, 34.55] \\
+QR (Challenge-Response)        & 1260 & 69.39  & 58.65  & 59.63  & 18.20  & 109.68  & 157.73  & 206.23  & [52.50, 67.68] \\
+\textbf{QR + OTP (Proposed)}   & 1003 & 125.48 & 102.06 & 145.50 & 63.56  & 133.69  & 240.25  & 969.21  & [98.18, 106.85] \\
+\hline
+\multicolumn{10}{l}{\footnotesize Monotonic clock source: \texttt{process.hrtime.bigint()}; Resamples for BCa Bootstrap: $B = 2,000$.} \\
+\end{tabular}
+\end{table*}
