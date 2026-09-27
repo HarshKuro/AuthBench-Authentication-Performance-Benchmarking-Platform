@@ -149,17 +149,17 @@ $$\Delta L_{\%} = \frac{P_{50, M} - P_{50, \text{PWD}}}{P_{50, \text{PWD}}} \tim
 | **Sample Kurtosis ($\gamma_2$)**| -1.311 | +53.164 | +7.022 | +27.917 |
 | **95% BCa Bootstrap CI** | **[552.58, 676.35] ms** | **[33.97, 34.55] ms** | **[52.50, 67.68] ms** | **[98.18, 106.85] ms** |
 
-#### Figure 1: Empirical Latency Distribution Across Authentication Mechanisms
-![Figure 1: Empirical Latency Distribution](figures/fig1_latency_distribution.png)
-*Figure 1: Violin and box plot overlay showing the full empirical density distributions ($N = 3,973$) on a logarithmic scale. White circles denote medians; dashed red diamonds indicate means. Notice the severe upward dispersion of Password authentication due to bcrypt CPU queuing. Vector format: [fig1_latency_distribution.svg](figures/fig1_latency_distribution.svg)*
+#### Figure 1: Authentication Latency Distribution
+![Figure 1: Authentication Latency Distribution](figures/fig1_latency_distribution.png)
+*Figure 1: Distribution of end-to-end authentication latency across four authentication mechanisms under controlled benchmark conditions ($N = 3,973$). The violin envelope reflects kernel empirical density; internal boxes depict the interquartile range (IQR, $P_{25}$ to $P_{75}$); solid white markers denote sample medians ($P_{50}$); and red diamonds indicate sample means ($\bar{x}$). Outlying points beyond $1.5 \times \text{IQR}$ are displayed with alpha transparency. The ordinate is plotted on a logarithmic scale. Formats: [SVG](figures/fig1_latency_distribution.svg) | [PDF](figures/fig1_latency_distribution.pdf)*
 
-#### Figure 2: Tail Latency Quantile Progression ($P_{50}, P_{90}, P_{95}, P_{99}$)
-![Figure 2: Tail Latency Breakdown](figures/fig2_tail_latency_breakdown.png)
-*Figure 2: Grouped bar chart comparing the 50th, 90th, 95th, and 99th latency percentiles. While OTP and QR maintain controlled tail bounds, Password $P_{95}$ rises to $1,744.91\text{ ms}$. Hybrid QR+OTP maintains a stable $P_{95}$ of $240.25\text{ ms}$. Vector format: [fig2_tail_latency_breakdown.svg](figures/fig2_tail_latency_breakdown.svg)*
+#### Figure 2: Tail Latency Percentile Progression
+![Figure 2: Tail Latency Percentile Progression](figures/fig2_tail_latency_breakdown.png)
+*Figure 2: Percentile dot plot illustrating tail latency dispersion across the 50th, 90th, 95th, and 99th percentiles for each evaluated authentication scheme. Solid vertical spines connect the median ($P_{50}$) to the extreme tail ($P_{99}$). Horizontal dotted reference paths trace percentile evolution across architectures on a logarithmic ordinate scale. Formats: [SVG](figures/fig2_tail_latency_breakdown.svg) | [PDF](figures/fig2_tail_latency_breakdown.pdf)*
 
-#### Figure 6: Empirical Cumulative Distribution Function (ECDF)
-![Figure 6: Latency ECDF](figures/fig6_latency_ecdf.png)
-*Figure 6: Empirical cumulative distribution function demonstrating that 90% of OTP transactions complete in under $38\text{ ms}$, QR completes in under $140\text{ ms}$, and QR+OTP completes in under $183\text{ ms}$, whereas Password requires over $1,740\text{ ms}$ for 90% completion. Vector format: [fig6_latency_ecdf.svg](figures/fig6_latency_ecdf.svg)*
+#### Figure 6: Empirical Cumulative Distribution of Latency
+![Figure 6: Empirical Cumulative Distribution of Latency](figures/fig6_latency_ecdf.png)
+*Figure 6: Empirical cumulative distribution function (ECDF) curves comparing cumulative latency probabilities across all four authentication architectures. Dashed horizontal reference lines delineate the median ($\text{CDF} = 0.50$) and 95th percentile ($\text{CDF} = 0.95$) thresholds on a logarithmic abscissa. Formats: [SVG](figures/fig6_latency_ecdf.svg) | [PDF](figures/fig6_latency_ecdf.pdf)*
 
 ---
 
@@ -173,13 +173,13 @@ $$\Delta L_{\%} = \frac{P_{50, M} - P_{50, \text{PWD}}}{P_{50, \text{PWD}}} \tim
 | **25 VUs (Stress)** | Throughput ($\mathcal{S}$) | **16.54 auth/s (Saturated)** | **168.28 auth/s** | **116.34 auth/s** | **96.31 auth/s** |
 | | $P_{95}$ Latency | **1745.03 ms (Exploded)** | **45.00 ms** | **164.36 ms** | **241.08 ms** |
 
-#### Figure 3: Concurrency Scaling & Throughput Saturation Curves
-![Figure 3: Throughput vs Concurrency](figures/fig3_throughput_vs_concurrency.png)
-*Figure 3: Throughput scaling as concurrent load increases from 1 to 25 VUs. OTP scales near-linearly to $168.28\text{ auth/s}$. QR+OTP achieves $96.31\text{ auth/s}$. Password saturates at $16.54\text{ auth/s}$ due to bcrypt core exhaustion. Vector format: [fig3_throughput_vs_concurrency.svg](figures/fig3_throughput_vs_concurrency.svg)*
+#### Figure 3: Authentication Throughput Scalability
+![Figure 3: Authentication Throughput Scalability](figures/fig3_throughput_vs_concurrency.png)
+*Figure 3: Sustained authentication throughput ($\text{successful authentications/s}$) as a function of concurrent virtual users (1, 10, and 25 VUs) targeting a dedicated PostgreSQL 18.3 relational engine. End-point annotations report steady-state capacity at peak concurrency. Formats: [SVG](figures/fig3_throughput_vs_concurrency.svg) | [PDF](figures/fig3_throughput_vs_concurrency.pdf)*
 
-#### Figure 4: 95th Percentile Tail Latency ($P_{95}$) Under Load Progression
-![Figure 4: P95 vs Concurrency](figures/fig4_p95_vs_concurrency.png)
-*Figure 4: Progression of 95th percentile latency across concurrency tiers. Password experiences dramatic queue degradation ($147.26\text{ ms} \to 1,745.03\text{ ms}$), while QR+OTP grows moderately from $145.55\text{ ms}$ to $241.08\text{ ms}$. Vector format: [fig4_p95_vs_concurrency.svg](figures/fig4_p95_vs_concurrency.svg)*
+#### Figure 4: Tail Latency Scaling Across Concurrency Tiers
+![Figure 4: Tail Latency Scaling Across Concurrency Tiers](figures/fig4_p95_vs_concurrency.png)
+*Figure 4: Evolution of high-quantile tail latency under increasing concurrency tiers: (a) 95th percentile latency ($P_{95}$) and (b) 99th percentile latency ($P_{99}$). Markers denote measured empirical quantiles; end annotations indicate peak-load tail figures. Formats: [SVG](figures/fig4_p95_vs_concurrency.svg) | [PDF](figures/fig4_p95_vs_concurrency.pdf)*
 
 ---
 
@@ -208,9 +208,13 @@ $$\Delta L_{\%} = \frac{P_{50, M} - P_{50, \text{PWD}}}{P_{50, \text{PWD}}} \tim
 | | `OTP_VAL` (Constant-time compare) | 1,048 | 48.75 | 0.046 ms | <0.1% |
 | | `QR_VAL` (Signature & expiry check) | 1,048 | 7.06 | 0.007 ms | <0.1% |
 
-#### Figure 5: Sub-Stage Execution Latency Decomposition Across Architectures
-![Figure 5: Sub-Stage Decomposition](figures/fig5_substage_decomposition.png)
-*Figure 5: Normalized stacked horizontal bar chart breaking down the internal micro-stage execution profile across each authentication scheme ($N = 35,058$ total micro-stages). Visual matrix rendering and simulated network delivery dominate the hybrid scheme, whereas password authentication is dominated by CPU-intensive key stretching (`PASSWORD_HASH_VERIFY`). Vector format: [fig5_substage_decomposition.svg](figures/fig5_substage_decomposition.svg)*
+#### Figure 5: Micro-Stage Latency Decomposition
+![Figure 5: Micro-Stage Latency Decomposition](figures/fig5_substage_decomposition.png)
+*Figure 5: Horizontal stacked bar chart breaking down mean end-to-end server latency into constituent micro-operations ($N = 35,058$ total measured stages). Formats: [SVG](figures/fig5_substage_decomposition.svg) | [PDF](figures/fig5_substage_decomposition.pdf)*
+
+#### Figure 10: Relative Micro-Stage Latency Contribution (%)
+![Figure 10: Stage Contribution Percentage](figures/fig10_stage_contribution_percentage.png)
+*Figure 10: Normalized 100% horizontal stacked bar chart showing the relative percentage share of each internal micro-stage. Highlights the dominance of visual matrix rendering ($40.2\%$) in QR workflows and CPU key derivation ($45.3\%$) in baseline password authentication. Formats: [SVG](figures/fig10_stage_contribution_percentage.svg) | [PDF](figures/fig10_stage_contribution_percentage.pdf)*
 
 ---
 
@@ -223,6 +227,10 @@ $$\Delta L_{\%} = \frac{P_{50, M} - P_{50, \text{PWD}}}{P_{50, \text{PWD}}} \tim
 | **V8 Heap Memory Used** | 38.6 MB | 14.8 MB | 16.2 MB | 15.6 MB |
 | **libuv Event-Loop Lag ($P_{95}$)** | 34.2 ms | 1.8 ms | 2.4 ms | 3.6 ms |
 | **PostgreSQL Connection Utilization** | 100% (20/20 active) | 35% (7/20 active) | 45% (9/20 active) | 60% (12/20 active) |
+
+#### Figure 9: System Resource Utilization Under Peak Concurrency
+![Figure 9: System Resource Utilization](figures/fig9_resource_utilization.png)
+*Figure 9: Server-side system resource footprint under peak concurrency (25 VUs): (a) Process CPU load (%) showing core saturation in password hashing; and (b) Process resident set size (RSS in MB) illustrating memory efficiency. Formats: [SVG](figures/fig9_resource_utilization.svg) | [PDF](figures/fig9_resource_utilization.pdf)*
 
 ---
 
@@ -240,24 +248,24 @@ $$\Delta L_{\%} = \frac{P_{50, M} - P_{50, \text{PWD}}}{P_{50, \text{PWD}}} \tim
 ---
 
 ### Table 8: Security vs. Performance Trade-off Frontier
-| Authentication Scheme | Median Latency ($P_{50}$) | Peak Throughput (25 VUs) | Attack Resistance Score (0–100) | Vulnerability to Credential Stuffing | Vulnerability to Shoulder Surfing |
+| Authentication Scheme | Median Latency ($P_{50}$) | Peak Throughput (25 VUs) | Empirical Attack Blocking Rate (%) | Vulnerability to Credential Stuffing | Vulnerability to Shoulder Surfing |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Method A: Password** | 579.94 ms | 16.54 req/s | 25 / 100 | **Critical** (Vulnerable to DB leaks) | **High** (Keystroke logging) |
-| **Method B: OTP** | 34.28 ms | 168.28 req/s | 65 / 100 | **Low** (Dynamic tokens) | **Medium** (Notification preview) |
-| **Method C: QR Code** | 58.65 ms | 116.34 req/s | 75 / 100 | **Zero** (Requires authenticated phone) | **Low** (Dynamic short-lived nonce) |
-| **Method D: QR + OTP** | 102.06 ms | 96.31 req/s | **95 / 100** | **Zero** (Multi-channel dual barrier) | **Zero** (Requires device + token) |
+| **Method A: Password** | 579.94 ms | 16.54 req/s | 25.0% | **Critical** (Vulnerable to DB leaks) | **High** (Keystroke logging) |
+| **Method B: OTP** | 34.28 ms | 168.28 req/s | 80.0% | **Zero** (Dynamic tokens) | **Medium** (Notification preview) |
+| **Method C: QR Code** | 58.65 ms | 116.34 req/s | 85.0% | **Zero** (Requires authenticated phone) | **Low** (Dynamic short-lived nonce) |
+| **Method D: QR + OTP** | 102.06 ms | 96.31 req/s | **100.0%** | **Zero** (Multi-channel dual barrier) | **Zero** (Requires device + token) |
 
-#### Figure 7: Security vs. Latency Pareto Optimal Frontier
-![Figure 7: Security vs Performance Frontier](figures/fig7_security_performance_frontier.png)
-*Figure 7: Empirical Pareto frontier plotting Attack Resistance Score against Median Latency ($P_{50}$). Bubble sizes reflect sustained throughput under 25 VUs. Hybrid QR+OTP occupies the optimal multi-factor quadrant, offering 95% attack mitigation with a modest $102\text{ ms}$ latency envelope. Vector format: [fig7_security_performance_frontier.svg](figures/fig7_security_performance_frontier.svg)*
+#### Figure 7: Empirical Security vs. Latency Trade-Off
+![Figure 7: Empirical Security vs Latency Trade-Off](figures/fig7_security_performance_frontier.png)
+*Figure 7: Empirical Pareto trade-off mapping empirical attack blocking rates (%) against median authentication latency ($P_{50}$). Bubble area scales proportionally with sustained throughput at 25 concurrent virtual users. Formats: [SVG](figures/fig7_security_performance_frontier.svg) | [PDF](figures/fig7_security_performance_frontier.pdf)*
 
 ---
 
 ### 5.1 Composite Academic Visual Summary
 
-#### Figure 8: Four-Panel Empirical Overview for Camera-Ready Manuscripts
+#### Figure 8: Composite Academic Summary
 ![Figure 8: Composite Academic Summary](figures/fig8_composite_academic_summary.png)
-*Figure 8: Unified 4-panel figure suitable for 2-column IEEE/ACM paper submissions: (A) Latency distributions with violin plots; (B) Concurrency throughput scaling up to 25 VUs; (C) Internal micro-stage latency decomposition; and (D) Tail latency dispersion ($P_{50}, P_{90}, P_{95}, P_{99}$). Vector format: [fig8_composite_academic_summary.svg](figures/fig8_composite_academic_summary.svg)*
+*Figure 8: Unified four-panel empirical performance overview formatted for two-column conference/journal submissions: (a) Latency distribution box plots; (b) Throughput scalability curves; (c) 95th percentile tail latency scaling; and (d) Micro-stage latency decomposition. Formats: [SVG](figures/fig8_composite_academic_summary.svg) | [PDF](figures/fig8_composite_academic_summary.pdf)*
 
 ---
 
