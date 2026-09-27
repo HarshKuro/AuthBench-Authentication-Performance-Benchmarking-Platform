@@ -52,12 +52,14 @@ async function runTests() {
 
   console.log('\nFlushing telemetry buffer to database...');
   await TelemetryBuffer.getInstance().flush();
+  TelemetryBuffer.getInstance().stop();
 
   const traceCount = await prisma.authenticationTrace.count();
   const stageCount = await prisma.authenticationStage.count();
   console.log(`Verification completed! Stored Traces: ${traceCount}, Stored Stages: ${stageCount}`);
 
   await prisma.$disconnect();
+  process.exit(0);
 }
 
 runTests().catch((err) => {
