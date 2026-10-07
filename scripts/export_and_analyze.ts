@@ -10,48 +10,64 @@ async function main() {
   }
 
   console.log('Querying PostgreSQL 18 database for empirical traces...');
-  const traces = await prisma.authenticationTrace.findMany({
-    where: { isWarm: true },
-    select: {
-      traceId: true,
-      authMethod: true,
-      durationMs: true,
-      success: true,
-      statusCode: true,
-      outlierClass: true,
-      benchmarkRun: {
-        select: {
-          experiment: {
-            select: {
-              targetVUs: true,
+  let traces: any[] = [];
+  let stages: any[] = [];
+  let experiments: any[] = [];
+
+  try {
+    traces = await prisma.authenticationTrace.findMany({
+      where: { isWarm: true },
+      select: {
+        traceId: true,
+        authMethod: true,
+        durationMs: true,
+        success: true,
+        statusCode: true,
+        outlierClass: true,
+        benchmarkRun: {
+          select: {
+            experiment: {
+              select: {
+                targetVUs: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const stages = await prisma.authenticationStage.findMany({
-    select: {
-      traceId: true,
-      stageName: true,
-      sequenceOrder: true,
-      durationMs: true,
-      status: true,
-      trace: {
-        select: {
-          authMethod: true,
+    stages = await prisma.authenticationStage.findMany({
+      select: {
+        traceId: true,
+        stageName: true,
+        sequenceOrder: true,
+        durationMs: true,
+        status: true,
+        trace: {
+          select: {
+            authMethod: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  const experiments = await prisma.experiment.findMany({
-    include: {
-      benchmarkRuns: true,
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+    experiments = await prisma.experiment.findMany({
+      include: {
+        benchmarkRuns: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  } catch (dbErr) {
+    console.warn('PostgreSQL database unreachable or offline. Falling back to existing empirical CSV ground truth.');
+    const pyRun = spawn('python', ['scripts/run_analysis.py'], { stdio: 'inherit' });
+    await new Promise((res, rej) => {
+      pyRun.on('close', (code) => {
+        if (code === 0) res(null);
+        else rej(new Error(`run_analysis.py exited with code ${code}`));
+      });
+    });
+    return;
+  }
 
   console.log(`Retrieved ${traces.length} warm traces, ${stages.length} stages, ${experiments.length} experiments.`);
 

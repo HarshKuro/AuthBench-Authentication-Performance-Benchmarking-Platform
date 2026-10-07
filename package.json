@@ -12,6 +12,10 @@
     "test:auth": "npm --prefix backend run build && npx --prefix backend tsx backend/test-e2e.ts",
     "test:analytics": "python analytics/cli.py --test",
     "test:all": "npm run test:auth && npm run test:analytics",
+    "pipeline": "python scripts/run_pipeline.py",
+    "pipeline:analyze": "python scripts/run_analysis.py",
+    "pipeline:figures": "python scripts/generate_figures.py",
+    "pipeline:reports": "python scripts/generate_reports.py",
     "seed": "npm --prefix backend run prisma:seed"
   },
   "keywords": [

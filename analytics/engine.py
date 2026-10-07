@@ -99,23 +99,26 @@ class ScientificAnalyticsEngine:
         data: List[float],
         statistic_name: str = "median",
         n_resamples: int = 2000,
-        confidence_level: float = 0.95
+        confidence_level: float = 0.95,
+        random_state: Optional[Any] = None
     ) -> Dict[str, float]:
         """
-        Calculate non-parametric Bootstrap Confidence Interval.
+        Calculate non-parametric Bias-Corrected and Accelerated (BCa) Bootstrap Confidence Interval.
         """
         arr = np.array(data, dtype=float)
         arr = arr[~np.isnan(arr)]
         if len(arr) < 5:
             return {"lower": 0.0, "upper": 0.0}
 
+        rng = random_state if random_state is not None else np.random.default_rng(42)
         stat_func = np.median if statistic_name == "median" else np.mean
         res = stats.bootstrap(
             (arr,),
             statistic=stat_func,
             n_resamples=n_resamples,
             confidence_level=confidence_level,
-            method="BCa" if len(arr) >= 15 else "percentile"
+            method="BCa" if len(arr) >= 15 else "percentile",
+            random_state=rng
         )
         return {
             "lower": float(round(float(res.confidence_interval.low), 3)),
@@ -196,7 +199,7 @@ class ScientificAnalyticsEngine:
         """
         Perform complete hypothesis testing between two authentication mechanisms:
         - Mann-Whitney U Test (primary non-parametric)
-        - Student's Two-Sample t-test
+        - Student's Two-Sample t-test (Welch's t-test unequal variances)
         - Cliff's Delta Effect Size
         - Cohen's d Effect Size
         """
@@ -208,7 +211,7 @@ class ScientificAnalyticsEngine:
 
         # Mann-Whitney U test
         u_stat, u_p = stats.mannwhitneyu(a, b, alternative='two-sided')
-        # Student's t-test (Welch's t-test unequal variances)
+        # Welch's t-test
         t_stat, t_p = stats.ttest_ind(a, b, equal_var=False)
 
         cliffs = cls.calculate_cliffs_delta(a, b)
@@ -219,6 +222,7 @@ class ScientificAnalyticsEngine:
 
         return {
             "comparison": f"{name_a} vs {name_b}",
+            "null_hypothesis": f"Equality of latency distributions between {name_a} and {name_b} (P({name_a} > {name_b}) = P({name_b} > {name_a}))",
             "sample_sizes": {name_a: int(len(a)), name_b: int(len(b))},
             "mann_whitney_u": {
                 "statistic": float(round(float(u_stat), 3)),
@@ -248,39 +252,81 @@ class ScientificAnalyticsEngine:
     def omnibus_kruskal_wallis(cls, groups: Dict[str, List[float]]) -> Dict[str, Any]:
         """
         Omnibus non-parametric one-way ANOVA (Kruskal-Wallis H-test)
-        across all 4 authentication methods followed by pairwise Dunn-Bonferroni contrasts.
+        across all 4 authentication methods followed by pairwise Mann-Whitney U contrasts
+        with Holm-Bonferroni family-wise step-down error rate adjustment.
         """
-        valid_groups = {k: [float(x) for x in v if not np.isnan(x)] for k, v in groups.items() if len(v) >= 3}
+        canonical_order = ['PASSWORD', 'OTP', 'QR', 'QR_OTP']
+        ordered_keys = [k for k in canonical_order if k in groups] + [k for k in groups if k not in canonical_order]
+
+        valid_groups = {k: [float(x) for x in groups[k] if not np.isnan(x)] for k in ordered_keys if len(groups.get(k, [])) >= 3}
         if len(valid_groups) < 2:
             return {"error": "At least two valid groups required"}
 
         lists = list(valid_groups.values())
         h_stat, p_val = stats.kruskal(*lists)
 
-        # Pairwise contrasts with Bonferroni correction
+        sample_sizes = {k: int(len(v)) for k, v in valid_groups.items()}
+        total_sample_size = sum(sample_sizes.values())
+
+        # Generate all 6 pairwise contrasts in canonical order
         group_names = list(valid_groups.keys())
         pairwise = []
-        num_comparisons = (len(group_names) * (len(group_names) - 1)) // 2
-        bonferroni_alpha = 0.05 / max(1, num_comparisons)
-
         for i in range(len(group_names)):
             for j in range(i + 1, len(group_names)):
                 name_i, name_j = group_names[i], group_names[j]
                 comp = cls.compare_two_groups(valid_groups[name_i], valid_groups[name_j], name_i, name_j)
-                comp["bonferroni_alpha"] = float(bonferroni_alpha)
                 pairwise.append(comp)
+
+        # Apply Holm-Bonferroni step-down correction to pairwise Mann-Whitney p-values
+        num_contrasts = len(pairwise)
+        raw_p_values = [c["mann_whitney_u"]["p_value"] for c in pairwise]
+        sorted_indices = np.argsort(raw_p_values)
+
+        p_holm = [0.0] * num_contrasts
+        running_max = 0.0
+        for rank, idx in enumerate(sorted_indices):
+            multiplier = num_contrasts - rank
+            adjusted = min(1.0, raw_p_values[idx] * multiplier)
+            running_max = max(running_max, adjusted)
+            p_holm[idx] = float(running_max)
+
+        for idx, comp in enumerate(pairwise):
+            comp["mann_whitney_u"]["p_holm"] = p_holm[idx]
+            comp["mann_whitney_u"]["significant_holm_05"] = bool(p_holm[idx] < 0.05)
+            comp["bonferroni_alpha"] = float(0.05 / max(1, num_contrasts))
+            
+            delta = comp["effect_size"]["cliffs_delta"]
+            mag = comp["effect_size"]["cliffs_magnitude"]
+            p_raw = comp["mann_whitney_u"]["p_value"]
+            p_adj = comp["mann_whitney_u"]["p_holm"]
+            
+            if comp["mann_whitney_u"]["significant_holm_05"]:
+                comp["interpretation"] = (
+                    f"Statistically significant difference detected (raw p = {p_raw:.3e}, "
+                    f"Holm-adjusted p = {p_adj:.3e}). Effect size is {mag} (Cliff's δ = {delta})."
+                )
+            else:
+                comp["interpretation"] = (
+                    f"No statistically significant difference detected after Holm correction "
+                    f"(raw p = {p_raw:.3e}, Holm-adjusted p = {p_adj:.3e}). Effect size is {mag} (Cliff's δ = {delta})."
+                )
 
         return {
             "test": "Kruskal-Wallis H-test",
+            "null_hypothesis": "Equality of the latency distributions across the four authentication methods",
             "h_statistic": float(round(float(h_stat), 4)),
             "p_value": float(p_val),
             "degrees_of_freedom": int(len(valid_groups) - 1),
             "significant_at_05": bool(p_val < 0.05),
+            "sample_sizes": sample_sizes,
+            "total_sample_size": total_sample_size,
             "pairwise_contrasts": pairwise,
             "interpretation": (
-                f"Global difference across methods is statistically significant (H = {h_stat:.2f}, p = {p_val:.3e})."
+                f"Global difference in latency distributions across methods is statistically significant "
+                f"(H = {h_stat:.2f}, p = {p_val:.3e}, df = {len(valid_groups) - 1}, N = {total_sample_size:,})."
                 if p_val < 0.05 else
-                f"No global difference across methods (H = {h_stat:.2f}, p = {p_val:.3f})."
+                f"No global difference in latency distributions across methods "
+                f"(H = {h_stat:.2f}, p = {p_val:.3f}, df = {len(valid_groups) - 1}, N = {total_sample_size:,})."
             )
         }
 
