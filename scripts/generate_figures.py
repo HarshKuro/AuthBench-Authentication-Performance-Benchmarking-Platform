@@ -38,7 +38,7 @@ METHOD_ORDER = ['PASSWORD', 'OTP', 'QR', 'QR_OTP']
 STAGE_PALETTE = {
     'bcrypt': '#DC2626',     # Crimson: Bcrypt key derivation
     'qr': '#0284C7',         # Sky Blue: QR matrix rendering
-    'otp': '#D97706',        # Amber: OTP delivery transit
+    'otp': '#D97706',        # Amber: Simulated out-of-band OTP delay
     'db': '#2563EB',         # Royal Blue: Database operations
     'session': '#059669',    # Emerald: Session issuance
     'crypto': '#7C3AED',     # Purple: Nonce / HMAC validation
@@ -367,28 +367,67 @@ def plot_fig4_p95_p99_vs_concurrency(traces_df, fig_dir):
     save_all_formats(fig, os.path.join(fig_dir, 'fig4_p95_vs_concurrency'))
     print("Generated: fig4_p95_vs_concurrency")
 
+def compute_stage_metrics(stages_df):
+    """
+    Computes micro-stage mean execution latency per transaction and cumulative percentage shares
+    directly from stages_decomposition.csv.
+    """
+    stage_category_map = {
+        'PASSWORD_HASH_VERIFY': 'bcrypt',
+        'QR_RENDER': 'qr',
+        'OTP_DELIVERY_MOCK': 'otp',
+        'DB_QUERY': 'db',
+        'SESSION_CREATE': 'session',
+        'QR_GEN': 'crypto',
+        'QR_VAL': 'crypto',
+        'OTP_GEN': 'crypto',
+        'OTP_VAL': 'crypto',
+    }
+    stages = ['bcrypt', 'qr', 'otp', 'db', 'session', 'crypto']
+    trans_counts = stages_df.groupby('AuthMethod')['TraceId'].nunique().to_dict()
+
+    cumulative_totals = {m: {s: 0.0 for s in stages} for m in METHOD_ORDER}
+    method_total_stage_time = {m: 0.0 for m in METHOD_ORDER}
+
+    for _, row in stages_df.iterrows():
+        m = row['AuthMethod']
+        s_raw = row['StageName']
+        dur = float(row['DurationMs'])
+        cat = stage_category_map.get(s_raw, 'crypto')
+        cumulative_totals[m][cat] += dur
+        method_total_stage_time[m] += dur
+
+    stage_data = {m: {} for m in METHOD_ORDER}
+    for m in METHOD_ORDER:
+        n_tx = max(1, trans_counts.get(m, 1))
+        for s in stages:
+            stage_data[m][s] = float(round(cumulative_totals[m][s] / n_tx, 2))
+
+    stage_shares = {m: {} for m in METHOD_ORDER}
+    for m in METHOD_ORDER:
+        tot = max(1e-6, method_total_stage_time[m])
+        for s in stages:
+            stage_shares[m][s] = float(round((cumulative_totals[m][s] / tot) * 100, 2))
+
+    return stage_data, stage_shares
+
 # ==============================================================================
 # FIGURE 5: MICRO-STAGE LATENCY DECOMPOSITION (STACKED BAR CHART)
 # ==============================================================================
-def plot_fig5_substage_decomposition(stats, fig_dir):
+def plot_fig5_substage_decomposition(stages_df, fig_dir):
     fig, ax = plt.subplots(figsize=(7.8, 4.6))
+
+    stage_data, _ = compute_stage_metrics(stages_df)
 
     # Compute mean stage latencies per transaction
     display_order = list(reversed(METHOD_ORDER))
     y_pos = np.arange(len(display_order))
 
-    stage_data = {
-        'PASSWORD': {'bcrypt': 278.56, 'qr': 0.0, 'otp': 0.0, 'db': 186.49, 'session': 150.08, 'crypto': 0.0},
-        'OTP':      {'bcrypt': 0.0, 'qr': 0.0, 'otp': 29.37, 'db': 3.24, 'session': 1.87, 'crypto': 0.14},
-        'QR':       {'bcrypt': 0.0, 'qr': 24.04, 'otp': 0.0, 'db': 9.72, 'session': 4.79, 'crypto': 0.05},
-        'QR_OTP':   {'bcrypt': 0.0, 'qr': 32.73, 'otp': 29.97, 'db': 13.88, 'session': 3.56, 'crypto': 0.15},
-    }
-
     stages = ['bcrypt', 'qr', 'otp', 'db', 'session', 'crypto']
     stage_labels = [
         'Bcrypt key derivation',
         'QR matrix rendering',
-        'OTP transit delivery',
+        'Simulated out-of-band OTP delay',
         'Database query / commit',
         'Session dispatch',
         'Nonce / HMAC validation'
@@ -465,72 +504,9 @@ def plot_fig6_latency_ecdf(traces_df, fig_dir):
     print("Generated: fig6_latency_ecdf")
 
 # ==============================================================================
-# FIGURE 7: EMPIRICAL SECURITY VS. LATENCY TRADE-OFF (BUBBLE PLOT)
-# ==============================================================================
-def plot_fig7_security_performance_frontier(stats, fig_dir):
-    fig, ax = plt.subplots(figsize=(7.5, 4.8))
-
-    blocking_rates = {
-        'PASSWORD': 25.0,
-        'OTP': 80.0,
-        'QR': 85.0,
-        'QR_OTP': 100.0,
-    }
-
-    medians = {m: stats['distResults'][m]['median'] for m in METHOD_ORDER}
-    throughputs = {m: stats['concurrencyTiers']['25'][m]['throughput'] for m in METHOD_ORDER}
-
-    for m in METHOD_ORDER:
-        x = blocking_rates[m]
-        y = medians[m]
-        t = throughputs[m]
-        col = PALETTE[m]
-
-        bubble_size = t * 6.5
-        ax.scatter(
-            x, y, s=bubble_size,
-            color=col, alpha=0.75,
-            edgecolors='#1E293B', linewidth=1.2,
-            zorder=4
-        )
-
-        offset_y = 35 if m == 'PASSWORD' else -28
-        offset_x = -12 if m == 'QR_OTP' else 2
-        ax.annotate(
-            f"{METHOD_NAMES[m]}\n{y:.1f} ms | {t:.1f} req/s",
-            (x, y), xytext=(x + offset_x, y + offset_y),
-            ha='center', va='center', fontsize=8.5, color=TEXT_PRIMARY,
-            fontweight='medium',
-            bbox=dict(boxstyle='square,pad=0.2', facecolor='#FFFFFF', edgecolor='#CBD5E1', alpha=0.85),
-            arrowprops=dict(arrowstyle='->', color='#94A3B8', lw=0.8)
-        )
-
-    ax.set_xlim(15, 110)
-    ax.set_ylim(0, 680)
-    ax.set_xticks([20, 40, 60, 80, 100])
-    ax.xaxis.set_major_formatter(ticker.PercentFormatter())
-
-    ax.set_title("Empirical Security vs. Latency Trade-Off")
-    ax.set_xlabel("Empirical attack blocking rate (%)")
-    ax.set_ylabel("Median authentication latency (ms)")
-
-    legend_elements = [
-        Line2D([0], [0], marker='o', color='w', markerfacecolor='#94A3B8', markeredgecolor='#1E293B',
-               markersize=np.sqrt(20 * 6.5) / 2, label='Throughput: 20 req/s'),
-        Line2D([0], [0], marker='o', color='w', markerfacecolor='#94A3B8', markeredgecolor='#1E293B',
-               markersize=np.sqrt(100 * 6.5) / 2, label='Throughput: 100 req/s'),
-        Line2D([0], [0], marker='o', color='w', markerfacecolor='#94A3B8', markeredgecolor='#1E293B',
-               markersize=np.sqrt(170 * 6.5) / 2, label='Throughput: 170 req/s'),
-    ]
-    ax.legend(handles=legend_elements, loc='upper left', frameon=True, framealpha=0.9, edgecolor=GRID_COLOR)
-
-    save_all_formats(fig, os.path.join(fig_dir, 'fig7_security_performance_frontier'))
-    print("Generated: fig7_security_performance_frontier")
-
-# ==============================================================================
 # FIGURE 8: COMPOSITE FOUR-PANEL ACADEMIC SUMMARY
 # ==============================================================================
-def plot_fig8_composite_academic_summary(traces_df, stats, fig_dir):
+def plot_fig8_composite_academic_summary(traces_df, stats, stages_df, fig_dir):
     fig = plt.figure(figsize=(12, 9.5))
     gs = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.25)
 
@@ -601,12 +577,8 @@ def plot_fig8_composite_academic_summary(traces_df, stats, fig_dir):
     # Panel (d): Micro-Stage Latency Decomposition
     display_order = list(reversed(METHOD_ORDER))
     y_pos = np.arange(len(display_order))
-    stage_data = {
-        'PASSWORD': {'bcrypt': 278.56, 'qr': 0.0, 'otp': 0.0, 'db': 186.49, 'session': 150.08, 'crypto': 0.0},
-        'OTP':      {'bcrypt': 0.0, 'qr': 0.0, 'otp': 29.37, 'db': 3.24, 'session': 1.87, 'crypto': 0.14},
-        'QR':       {'bcrypt': 0.0, 'qr': 24.04, 'otp': 0.0, 'db': 9.72, 'session': 4.79, 'crypto': 0.05},
-        'QR_OTP':   {'bcrypt': 0.0, 'qr': 32.73, 'otp': 29.97, 'db': 13.88, 'session': 3.56, 'crypto': 0.15},
-    }
+    stage_data, _ = compute_stage_metrics(stages_df)
+
     stages = ['bcrypt', 'qr', 'otp', 'db', 'session', 'crypto']
     lefts = np.zeros(len(display_order))
     for s_key in stages:
@@ -674,35 +646,27 @@ def plot_fig9_resource_utilization(fig_dir):
 # ==============================================================================
 # FIGURE 10: STAGE CONTRIBUTION PERCENTAGE (100% STACKED BAR)
 # ==============================================================================
-def plot_fig10_stage_contribution_percentage(fig_dir):
+def plot_fig10_stage_contribution_percentage(stages_df, fig_dir):
     fig, ax = plt.subplots(figsize=(7.8, 4.4))
 
     display_order = list(reversed(METHOD_ORDER))
     y_pos = np.arange(len(display_order))
 
-    stage_data = {
-        'PASSWORD': {'bcrypt': 278.56, 'qr': 0.0, 'otp': 0.0, 'db': 186.49, 'session': 150.08, 'crypto': 0.0},
-        'OTP':      {'bcrypt': 0.0, 'qr': 0.0, 'otp': 29.37, 'db': 3.24, 'session': 1.87, 'crypto': 0.14},
-        'QR':       {'bcrypt': 0.0, 'qr': 24.04, 'otp': 0.0, 'db': 9.72, 'session': 4.79, 'crypto': 0.05},
-        'QR_OTP':   {'bcrypt': 0.0, 'qr': 32.73, 'otp': 29.97, 'db': 13.88, 'session': 3.56, 'crypto': 0.15},
-    }
+    _, stage_shares = compute_stage_metrics(stages_df)
 
     stages = ['bcrypt', 'qr', 'otp', 'db', 'session', 'crypto']
     stage_labels = [
         'Bcrypt key derivation',
         'QR matrix rendering',
-        'OTP transit delivery',
+        'Simulated out-of-band OTP delay',
         'Database query / commit',
         'Session dispatch',
         'Nonce / HMAC validation'
     ]
 
-    totals = {m: sum(stage_data[m].values()) for m in display_order}
-    stage_pcts = {s: [stage_data[m][s] / totals[m] * 100 for m in display_order] for s in stages}
-
     lefts = np.zeros(len(display_order))
     for s_idx, s_key in enumerate(stages):
-        widths = stage_pcts[s_key]
+        widths = [stage_shares[m][s_key] for m in display_order]
         col = STAGE_PALETTE[s_key]
         ax.barh(
             y_pos, widths, left=lefts, height=0.48,
@@ -745,13 +709,13 @@ def generate_combined_preview_sheet(fig_dir):
         'fig4_p95_vs_concurrency.png',
         'fig5_substage_decomposition.png',
         'fig6_latency_ecdf.png',
-        'fig7_security_performance_frontier.png',
         'fig8_composite_academic_summary.png',
         'fig9_resource_utilization.png',
         'fig10_stage_contribution_percentage.png'
     ]
 
-    images = [Image.open(os.path.join(fig_dir, f)) for f in fig_names]
+    existing_figs = [f for f in fig_names if os.path.exists(os.path.join(fig_dir, f))]
+    images = [Image.open(os.path.join(fig_dir, f)) for f in existing_figs]
 
     target_width = 1200
     resized_images = []
@@ -796,12 +760,11 @@ def main():
     plot_fig2_tail_latency_breakdown(stats, fig_dir)
     plot_fig3_throughput_vs_concurrency(stats, fig_dir)
     plot_fig4_p95_p99_vs_concurrency(traces_df, fig_dir)
-    plot_fig5_substage_decomposition(stats, fig_dir)
+    plot_fig5_substage_decomposition(stages_df, fig_dir)
     plot_fig6_latency_ecdf(traces_df, fig_dir)
-    plot_fig7_security_performance_frontier(stats, fig_dir)
-    plot_fig8_composite_academic_summary(traces_df, stats, fig_dir)
+    plot_fig8_composite_academic_summary(traces_df, stats, stages_df, fig_dir)
     plot_fig9_resource_utilization(fig_dir)
-    plot_fig10_stage_contribution_percentage(fig_dir)
+    plot_fig10_stage_contribution_percentage(stages_df, fig_dir)
 
     try:
         generate_combined_preview_sheet(fig_dir)

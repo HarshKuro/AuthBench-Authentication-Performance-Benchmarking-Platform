@@ -3,25 +3,36 @@
   "totalStages": 35058,
   "omnibusResult": {
     "test": "Kruskal-Wallis H-test",
-    "h_statistic": 1544.22,
-    "p_value": 0,
+    "null_hypothesis": "Equality of the latency distributions across the four authentication methods",
+    "h_statistic": 1544.2206,
+    "p_value": 0.0,
     "degrees_of_freedom": 3,
     "significant_at_05": true,
+    "sample_sizes": {
+      "PASSWORD": 217,
+      "OTP": 1493,
+      "QR": 1260,
+      "QR_OTP": 1003
+    },
+    "total_sample_size": 3973,
     "pairwise_contrasts": [
       {
         "comparison": "PASSWORD vs OTP",
+        "null_hypothesis": "Equality of latency distributions between PASSWORD and OTP (P(PASSWORD > OTP) = P(OTP > PASSWORD))",
         "sample_sizes": {
           "PASSWORD": 217,
           "OTP": 1493
         },
         "mann_whitney_u": {
-          "statistic": 320548,
-          "p_value": 2.265661176411438e-120,
-          "significant_at_05": true
+          "statistic": 320548.0,
+          "p_value": 2.2655729815031343e-120,
+          "significant_at_05": true,
+          "p_holm": 1.1327864907515672e-119,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": 19.946,
-          "p_value": 5.775466012466234e-51,
+          "p_value": 5.775449056092889e-51,
           "significant_at_05": true
         },
         "effect_size": {
@@ -30,23 +41,26 @@
           "cohens_d": 3.6366,
           "cohens_magnitude": "Large"
         },
-        "interpretation": "Statistically significant difference detected (p = 2.266e-120). Effect size is Large (Cliff's δ = 0.9788).",
+        "interpretation": "Statistically significant difference detected (raw p = 2.266e-120, Holm-adjusted p = 1.133e-119). Effect size is Large (Cliff's \u03b4 = 0.9788).",
         "bonferroni_alpha": 0.008333333333333333
       },
       {
         "comparison": "PASSWORD vs QR",
+        "null_hypothesis": "Equality of latency distributions between PASSWORD and QR (P(PASSWORD > QR) = P(QR > PASSWORD))",
         "sample_sizes": {
           "PASSWORD": 217,
           "QR": 1260
         },
         "mann_whitney_u": {
-          "statistic": 256577,
-          "p_value": 8.708217446928404e-95,
-          "significant_at_05": true
+          "statistic": 256577.0,
+          "p_value": 8.708200110364574e-95,
+          "significant_at_05": true,
+          "p_holm": 3.4832800441458297e-94,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": 19.322,
-          "p_value": 4.895794131716308e-49,
+          "p_value": 4.895787371946152e-49,
           "significant_at_05": true
         },
         "effect_size": {
@@ -55,23 +69,26 @@
           "cohens_d": 3.3299,
           "cohens_magnitude": "Large"
         },
-        "interpretation": "Statistically significant difference detected (p = 8.708e-95). Effect size is Large (Cliff's δ = 0.8768).",
+        "interpretation": "Statistically significant difference detected (raw p = 8.708e-95, Holm-adjusted p = 3.483e-94). Effect size is Large (Cliff's \u03b4 = 0.8768).",
         "bonferroni_alpha": 0.008333333333333333
       },
       {
         "comparison": "PASSWORD vs QR_OTP",
+        "null_hypothesis": "Equality of latency distributions between PASSWORD and QR_OTP (P(PASSWORD > QR_OTP) = P(QR_OTP > PASSWORD))",
         "sample_sizes": {
           "PASSWORD": 217,
           "QR_OTP": 1003
         },
         "mann_whitney_u": {
-          "statistic": 193547,
-          "p_value": 1.8473292465399109e-72,
-          "significant_at_05": true
+          "statistic": 193547.5,
+          "p_value": 1.8437842944184998e-72,
+          "significant_at_05": true,
+          "p_holm": 5.5313528832555e-72,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": 17.796,
-          "p_value": 1.3016177337295277e-44,
+          "p_value": 1.3016182863820775e-44,
           "significant_at_05": true
         },
         "effect_size": {
@@ -80,23 +97,26 @@
           "cohens_d": 2.5415,
           "cohens_magnitude": "Large"
         },
-        "interpretation": "Statistically significant difference detected (p = 1.847e-72). Effect size is Large (Cliff's δ = 0.7785).",
+        "interpretation": "Statistically significant difference detected (raw p = 1.844e-72, Holm-adjusted p = 5.531e-72). Effect size is Large (Cliff's \u03b4 = 0.7785).",
         "bonferroni_alpha": 0.008333333333333333
       },
       {
         "comparison": "OTP vs QR",
+        "null_hypothesis": "Equality of latency distributions between OTP and QR (P(OTP > QR) = P(QR > OTP))",
         "sample_sizes": {
           "OTP": 1493,
           "QR": 1260
         },
         "mann_whitney_u": {
           "statistic": 812827.5,
-          "p_value": 7.803781292016437e-10,
-          "significant_at_05": true
+          "p_value": 7.803775551077023e-10,
+          "significant_at_05": true,
+          "p_holm": 7.803775551077023e-10,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": -10.05,
-          "p_value": 2.3073051778419285e-23,
+          "p_value": 2.307245581724822e-23,
           "significant_at_05": true
         },
         "effect_size": {
@@ -105,23 +125,26 @@
           "cohens_d": -0.3796,
           "cohens_magnitude": "Small"
         },
-        "interpretation": "Statistically significant difference detected (p = 7.804e-10). Effect size is Negligible (Cliff's δ = -0.1358).",
+        "interpretation": "Statistically significant difference detected (raw p = 7.804e-10, Holm-adjusted p = 7.804e-10). Effect size is Negligible (Cliff's \u03b4 = -0.1358).",
         "bonferroni_alpha": 0.008333333333333333
       },
       {
         "comparison": "OTP vs QR_OTP",
+        "null_hypothesis": "Equality of latency distributions between OTP and QR_OTP (P(OTP > QR_OTP) = P(QR_OTP > OTP))",
         "sample_sizes": {
           "OTP": 1493,
           "QR_OTP": 1003
         },
         "mann_whitney_u": {
-          "statistic": 61250,
-          "p_value": 0,
-          "significant_at_05": true
+          "statistic": 61249.0,
+          "p_value": 0.0,
+          "significant_at_05": true,
+          "p_holm": 0.0,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": -16.38,
-          "p_value": 5.29866007898156e-55,
+          "p_value": 5.298336771725594e-55,
           "significant_at_05": true
         },
         "effect_size": {
@@ -130,23 +153,26 @@
           "cohens_d": -0.7573,
           "cohens_magnitude": "Medium"
         },
-        "interpretation": "Statistically significant difference detected (p = 0.000e+00). Effect size is Large (Cliff's δ = -0.9182).",
+        "interpretation": "Statistically significant difference detected (raw p = 0.000e+00, Holm-adjusted p = 0.000e+00). Effect size is Large (Cliff's \u03b4 = -0.9182).",
         "bonferroni_alpha": 0.008333333333333333
       },
       {
         "comparison": "QR vs QR_OTP",
+        "null_hypothesis": "Equality of latency distributions between QR and QR_OTP (P(QR > QR_OTP) = P(QR_OTP > QR))",
         "sample_sizes": {
           "QR": 1260,
           "QR_OTP": 1003
         },
         "mann_whitney_u": {
-          "statistic": 373638,
-          "p_value": 8.65446546208778e-63,
-          "significant_at_05": true
+          "statistic": 373639.5,
+          "p_value": 8.668580641298505e-63,
+          "significant_at_05": true,
+          "p_holm": 1.733716128259701e-62,
+          "significant_holm_05": true
         },
         "welch_t_test": {
           "statistic": -11.466,
-          "p_value": 4.979963343130307e-29,
+          "p_value": 4.9798510744953095e-29,
           "significant_at_05": true
         },
         "effect_size": {
@@ -155,11 +181,11 @@
           "cohens_d": -0.5262,
           "cohens_magnitude": "Medium"
         },
-        "interpretation": "Statistically significant difference detected (p = 8.654e-63). Effect size is Medium (Cliff's δ = -0.4087).",
+        "interpretation": "Statistically significant difference detected (raw p = 8.669e-63, Holm-adjusted p = 1.734e-62). Effect size is Medium (Cliff's \u03b4 = -0.4087).",
         "bonferroni_alpha": 0.008333333333333333
       }
     ],
-    "interpretation": "Global difference across methods is statistically significant (H = 1544.22, p = 0.000e+00)."
+    "interpretation": "Global difference in latency distributions across methods is statistically significant (H = 1544.22, p = 0.000e+00, df = 3, N = 3,973)."
   },
   "distResults": {
     "PASSWORD": {
@@ -167,13 +193,13 @@
       "mean": 831.596,
       "median": 579.938,
       "std_dev": 580.566,
-      "variance": 337056.936,
+      "variance": 337056.925,
       "iqr": 968.783,
       "p25": 489.067,
       "p50": 579.938,
       "p75": 1457.85,
-      "p90": 1744.808,
-      "p95": 1744.908,
+      "p90": 1744.807,
+      "p95": 1744.907,
       "p99": 1745.048,
       "min": 61.154,
       "max": 1745.057,
@@ -190,11 +216,11 @@
       "median": 34.28,
       "std_dev": 69.306,
       "variance": 4803.381,
-      "iqr": 5.227,
+      "iqr": 5.228,
       "p25": 30.715,
       "p50": 34.28,
       "p75": 35.943,
-      "p90": 37.923,
+      "p90": 37.922,
       "p95": 54.37,
       "p99": 527.93,
       "min": 26.42,
@@ -202,8 +228,8 @@
       "skewness": 7.249,
       "kurtosis": 53.164,
       "ci95": {
-        "lower": 33.965,
-        "upper": 34.548
+        "lower": 33.988,
+        "upper": 34.55
       }
     },
     "QR": {
@@ -211,21 +237,21 @@
       "mean": 69.393,
       "median": 58.652,
       "std_dev": 59.629,
-      "variance": 3555.562,
+      "variance": 3555.564,
       "iqr": 91.475,
-      "p25": 18.204,
+      "p25": 18.203,
       "p50": 58.652,
       "p75": 109.679,
       "p90": 139.908,
       "p95": 157.732,
-      "p99": 206.23,
+      "p99": 206.231,
       "min": 8.114,
       "max": 413.385,
       "skewness": 1.787,
       "kurtosis": 7.022,
       "ci95": {
-        "lower": 52.501,
-        "upper": 67.681
+        "lower": 52.574,
+        "upper": 66.801
       }
     },
     "QR_OTP": {
@@ -233,9 +259,9 @@
       "mean": 125.48,
       "median": 102.062,
       "std_dev": 145.501,
-      "variance": 21170.649,
+      "variance": 21170.646,
       "iqr": 70.127,
-      "p25": 63.561,
+      "p25": 63.56,
       "p50": 102.062,
       "p75": 133.687,
       "p90": 183.382,
@@ -246,8 +272,8 @@
       "skewness": 5.147,
       "kurtosis": 27.917,
       "ci95": {
-        "lower": 98.182,
-        "upper": 106.845
+        "lower": 98.133,
+        "upper": 106.982
       }
     }
   },
@@ -295,7 +321,7 @@
       },
       "OTP": {
         "throughput": 168.28,
-        "p95": 45
+        "p95": 45.0
       },
       "QR": {
         "throughput": 116.34,
@@ -310,94 +336,136 @@
   "stageStats": {
     "PASSWORD": {
       "DB_QUERY": {
-        "totalMs": 48860.458199999965,
-        "count": 262
+        "totalMs": 48860.452,
+        "count": 262,
+        "meanMs": 186.49,
+        "sharePct": 30.32
       },
       "PASSWORD_HASH_VERIFY": {
-        "totalMs": 72983.01929999999,
-        "count": 262
+        "totalMs": 72983.018,
+        "count": 262,
+        "meanMs": 278.561,
+        "sharePct": 45.28
       },
       "SESSION_CREATE": {
-        "totalMs": 39322.248199999995,
-        "count": 262
+        "totalMs": 39322.247,
+        "count": 262,
+        "meanMs": 150.085,
+        "sharePct": 24.4
       }
     },
     "OTP": {
       "DB_QUERY": {
-        "totalMs": 19948.07430000001,
-        "count": 6152
-      },
-      "OTP_GEN": {
-        "totalMs": 133.11399999999998,
-        "count": 1538
+        "totalMs": 19948.088,
+        "count": 6152,
+        "meanMs": 3.243,
+        "sharePct": 29.24
       },
       "OTP_DELIVERY_MOCK": {
-        "totalMs": 45172.62220000005,
-        "count": 1538
+        "totalMs": 45172.608,
+        "count": 1538,
+        "meanMs": 29.371,
+        "sharePct": 66.22
+      },
+      "OTP_GEN": {
+        "totalMs": 133.123,
+        "count": 1538,
+        "meanMs": 0.087,
+        "sharePct": 0.2
       },
       "OTP_VAL": {
-        "totalMs": 82.22,
-        "count": 1538
+        "totalMs": 82.235,
+        "count": 1538,
+        "meanMs": 0.053,
+        "sharePct": 0.12
       },
       "SESSION_CREATE": {
-        "totalMs": 2882.1085000000007,
-        "count": 1538
+        "totalMs": 2882.113,
+        "count": 1538,
+        "meanMs": 1.874,
+        "sharePct": 4.22
       }
     },
     "QR": {
       "DB_QUERY": {
-        "totalMs": 50728.1408,
-        "count": 5220
+        "totalMs": 50728.147,
+        "count": 5220,
+        "meanMs": 9.718,
+        "sharePct": 57.37
       },
       "QR_GEN": {
-        "totalMs": 60.75690000000007,
-        "count": 1305
+        "totalMs": 60.747,
+        "count": 1305,
+        "meanMs": 0.047,
+        "sharePct": 0.07
       },
       "QR_RENDER": {
-        "totalMs": 31369.421499999982,
-        "count": 1305
+        "totalMs": 31369.431,
+        "count": 1305,
+        "meanMs": 24.038,
+        "sharePct": 35.48
       },
       "QR_VAL": {
-        "totalMs": 8.121899999999995,
-        "count": 1305
+        "totalMs": 8.092,
+        "count": 1305,
+        "meanMs": 0.006,
+        "sharePct": 0.01
       },
       "SESSION_CREATE": {
-        "totalMs": 6255.402899999995,
-        "count": 1305
+        "totalMs": 6255.422,
+        "count": 1305,
+        "meanMs": 4.793,
+        "sharePct": 7.07
       }
     },
     "QR_OTP": {
       "DB_QUERY": {
-        "totalMs": 58170.79840000003,
-        "count": 4192
-      },
-      "QR_GEN": {
-        "totalMs": 50.54049999999994,
-        "count": 1048
-      },
-      "QR_RENDER": {
-        "totalMs": 34305.56770000002,
-        "count": 1048
-      },
-      "OTP_GEN": {
-        "totalMs": 51.78969999999998,
-        "count": 1048
+        "totalMs": 58170.84,
+        "count": 4192,
+        "meanMs": 13.877,
+        "sharePct": 45.53
       },
       "OTP_DELIVERY_MOCK": {
-        "totalMs": 31407.105799999994,
-        "count": 1048
+        "totalMs": 31407.104,
+        "count": 1048,
+        "meanMs": 29.969,
+        "sharePct": 24.58
       },
-      "QR_VAL": {
-        "totalMs": 7.064000000000003,
-        "count": 1048
+      "OTP_GEN": {
+        "totalMs": 51.794,
+        "count": 1048,
+        "meanMs": 0.049,
+        "sharePct": 0.04
       },
       "OTP_VAL": {
-        "totalMs": 48.74620000000004,
-        "count": 1048
+        "totalMs": 48.737,
+        "count": 1048,
+        "meanMs": 0.047,
+        "sharePct": 0.04
+      },
+      "QR_GEN": {
+        "totalMs": 50.53,
+        "count": 1048,
+        "meanMs": 0.048,
+        "sharePct": 0.04
+      },
+      "QR_RENDER": {
+        "totalMs": 34305.578,
+        "count": 1048,
+        "meanMs": 32.734,
+        "sharePct": 26.85
+      },
+      "QR_VAL": {
+        "totalMs": 7.061,
+        "count": 1048,
+        "meanMs": 0.007,
+        "sharePct": 0.01
       },
       "SESSION_CREATE": {
-        "totalMs": 3731.3064000000004,
-        "count": 1048
+        "totalMs": 3731.306,
+        "count": 1048,
+        "meanMs": 3.56,
+        "sharePct": 2.92
       }
     }
   }

@@ -2,36 +2,37 @@
 \begin{table*}[t]
 \centering
 \small
-\caption{Empirical Micro-Stage Latency Decomposition (Sample Counts and Measured Mean Latencies)}
+\caption{Empirical Micro-Stage Latency Decomposition (Sample Counts, Measured Means, and Cumulative Stage Shares)}
 \label{tab:stage_decomposition}
-\begin{tabular}{llrrrl}
+\begin{tabular}{llrrrrl}
 \hline
-\textbf{Method} & \textbf{Micro-Stage Identifier} & \textbf{Executions} & \textbf{Mean (ms)} & \textbf{Fraction (\%)} & \textbf{Architectural Function} \\
+\textbf{Method} & \textbf{Micro-Stage Identifier} & \textbf{Executions} & \textbf{Total (ms)} & \textbf{Mean (ms)} & \textbf{Share (\%)} & \textbf{Architectural Function} \\
 \hline
-\textbf{Password} & \texttt{PASSWORD\_HASH\_VERIFY} & 262 & 278.56 & 45.3\% & bcrypt salt derivation and hash compare \\
-                  & \texttt{DB\_QUERY}             & 262 & 186.49 & 30.3\% & User lookup under CPU thread competition \\
-                  & \texttt{SESSION\_CREATE}        & 262 & 150.08 & 24.4\% & Session persistence and token dispatch \\
+\textbf{Password} & \texttt{PASSWORD_HASH_VERIFY} & 262 & 72,983.02 & 278.561 & 45.3\% & bcrypt salt derivation and hash compare \\
+ & \texttt{DB_QUERY} & 262 & 48,860.45 & 186.490 & 30.3\% & Database query / atomic transaction \\
+ & \texttt{SESSION_CREATE} & 262 & 39,322.25 & 150.085 & 24.4\% & Session persistence and token issuance \\
 \hline
-\textbf{OTP}      & \texttt{OTP\_DELIVERY\_MOCK}    & 1538 & 29.37  & 66.4\% & Out-of-band simulated network transport \\
-                  & \texttt{DB\_QUERY}             & 6152 & 3.24   & 29.3\% & Query challenge lookup and state update \\
-                  & \texttt{SESSION\_CREATE}        & 1538 & 1.87   & 4.2\%  & Session record creation \\
-                  & \texttt{OTP\_GEN}              & 1538 & 0.087  & 0.2\%  & 6-digit cryptographic random token \\
-                  & \texttt{OTP\_VAL}              & 1538 & 0.053  & 0.1\%  & Constant-time HMAC-SHA256 compare \\
+\textbf{OTP} & \texttt{OTP_DELIVERY_MOCK} & 1,538 & 45,172.61 & 29.371 & 66.2\% & Simulated out-of-band delivery channel delay \\
+ & \texttt{DB_QUERY} & 6,152 & 19,948.09 & 3.243 & 29.2\% & Database query / atomic transaction \\
+ & \texttt{SESSION_CREATE} & 1,538 & 2,882.11 & 1.874 & 4.2\% & Session persistence and token issuance \\
+ & \texttt{OTP_GEN} & 1,538 & 133.12 & 0.087 & 0.2\% & Cryptographic 6-digit token generation \\
+ & \texttt{OTP_VAL} & 1,538 & 82.23 & 0.053 & 0.1\% & Constant-time HMAC-SHA256 verification \\
 \hline
-\textbf{QR}       & \texttt{DB\_QUERY}             & 5220 & 9.72   & 54.3\% & Challenge state lifecycle lookups \\
-                  & \texttt{QR\_RENDER}            & 1305 & 24.04  & 40.2\% & ECC Level M QR matrix generation \\
-                  & \texttt{SESSION\_CREATE}        & 1305 & 4.79   & 5.4\%  & Session record creation \\
-                  & \texttt{QR\_GEN}               & 1305 & 0.047  & 0.1\%  & 128-bit cryptographic nonce generation \\
-                  & \texttt{QR\_VAL}               & 1305 & 0.006  & <0.1\% & Nonce validation and signature verify \\
+\textbf{QR} & \texttt{DB_QUERY} & 5,220 & 50,728.15 & 9.718 & 57.4\% & Database query / atomic transaction \\
+ & \texttt{QR_RENDER} & 1,305 & 31,369.43 & 24.038 & 35.5\% & Visual QR code matrix generation (Level M) \\
+ & \texttt{SESSION_CREATE} & 1,305 & 6,255.42 & 4.793 & 7.1\% & Session persistence and token issuance \\
+ & \texttt{QR_GEN} & 1,305 & 60.75 & 0.047 & 0.1\% & 128-bit cryptographic nonce generation \\
+ & \texttt{QR_VAL} & 1,305 & 8.09 & 0.006 & 0.0\% & Nonce validity and signature verification \\
 \hline
-\textbf{QR + OTP} & \texttt{DB\_QUERY}             & 4192 & 13.88  & 48.2\% & Atomic multi-table challenge persistence \\
-(Proposed)        & \texttt{QR\_RENDER}            & 1048 & 32.73  & 28.5\% & QR code visual matrix rendering \\
-                  & \texttt{OTP\_DELIVERY\_MOCK}    & 1048 & 29.97  & 26.1\% & Out-of-band delivery channel \\
-                  & \texttt{SESSION\_CREATE}        & 1048 & 3.56   & 3.1\%  & Session record creation \\
-                  & \texttt{OTP\_GEN}              & 1048 & 0.049  & <0.1\% & OTP code generation \\
-                  & \texttt{QR\_GEN}               & 1048 & 0.048  & <0.1\% & Nonce generation \\
-                  & \texttt{OTP\_VAL}              & 1048 & 0.046  & <0.1\% & Constant-time HMAC verification \\
-                  & \texttt{QR\_VAL}               & 1048 & 0.007  & <0.1\% & Nonce validity and expiration check \\
+\textbf{QR + OTP} & \texttt{DB_QUERY} & 4,192 & 58,170.84 & 13.877 & 45.5\% & Database query / atomic transaction \\
+ & \texttt{QR_RENDER} & 1,048 & 34,305.58 & 32.734 & 26.9\% & Visual QR code matrix generation (Level M) \\
+ & \texttt{OTP_DELIVERY_MOCK} & 1,048 & 31,407.10 & 29.969 & 24.6\% & Simulated out-of-band delivery channel delay \\
+ & \texttt{SESSION_CREATE} & 1,048 & 3,731.31 & 3.560 & 2.9\% & Session persistence and token issuance \\
+ & \texttt{OTP_GEN} & 1,048 & 51.79 & 0.049 & 0.0\% & Cryptographic 6-digit token generation \\
+ & \texttt{QR_GEN} & 1,048 & 50.53 & 0.048 & 0.0\% & 128-bit cryptographic nonce generation \\
+ & \texttt{OTP_VAL} & 1,048 & 48.74 & 0.047 & 0.0\% & Constant-time HMAC-SHA256 verification \\
+ & \texttt{QR_VAL} & 1,048 & 7.06 & 0.007 & 0.0\% & Nonce validity and signature verification \\
 \hline
+\multicolumn{7}{l}{\footnotesize Total micro-stage measurements: $N = 35,058$. Stage shares represent cumulative duration fraction per method.} \\
 \end{tabular}
 \end{table*}

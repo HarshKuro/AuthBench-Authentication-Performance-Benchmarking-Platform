@@ -1,10 +1,10 @@
-# Academic Performance Figures: Complete Publication Compendium
+# Academic Performance Figures: Publication Compendium
 
-This compendium contains the full suite of redesigned, publication-grade figures for the research paper:
+This compendium contains the complete suite of publication-grade figures for the research study:
 
-> **“Performance Evaluation of QR Code and OTP-Based E-Authentication”**
+> **“Empirical Performance Evaluation of Multi-Factor E-Authentication Mechanisms (QR Code, OTP, and Hybrid QR+OTP)”**
 
-All visuals are rendered at 300 DPI, follow the IEEE/ACM/Nature minimalist design system, and are available in raster PNG, scalable vector SVG, and vector PDF formats.
+All visuals are rendered at 300 DPI, conform to IEEE/ACM systems research styling, and are available in raster PNG, vector SVG, and vector PDF formats.
 
 ---
 
@@ -20,7 +20,7 @@ All visuals are rendered at 300 DPI, follow the IEEE/ACM/Nature minimalist desig
 **Formats:** [PNG (300 DPI)](figures/fig1_latency_distribution.png) | [Vector SVG](figures/fig1_latency_distribution.svg) | [Vector PDF](figures/fig1_latency_distribution.pdf)
 
 > **Paper Caption:**  
-> *Distribution of end-to-end authentication latency across four authentication mechanisms under controlled benchmark conditions ($N = 3,973$). The violin envelope reflects kernel empirical density; internal boxes depict the interquartile range (IQR, $P_{25}$ to $P_{75}$); solid white markers denote sample medians ($P_{50}$); and red diamonds indicate sample means ($\bar{x}$). Outlying points beyond $1.5 \times \text{IQR}$ are displayed with alpha transparency. The ordinate is plotted on a logarithmic scale.*
+> *Distribution of end-to-end authentication latency across four authentication mechanisms under controlled benchmark conditions ($N = 3,973$). The violin envelope reflects kernel empirical density; internal boxes depict the interquartile range (IQR, $P_{25}$ to $P_{75}$); solid white markers denote sample medians ($P_{50}$); and red diamonds indicate sample means ($ar{x}$). Outlying points beyond $1.5 	imes 	ext{IQR}$ are displayed with alpha transparency. The ordinate is plotted on a logarithmic scale.*
 
 ---
 
@@ -40,7 +40,7 @@ All visuals are rendered at 300 DPI, follow the IEEE/ACM/Nature minimalist desig
 **Formats:** [PNG (300 DPI)](figures/fig3_throughput_vs_concurrency.png) | [Vector SVG](figures/fig3_throughput_vs_concurrency.svg) | [Vector PDF](figures/fig3_throughput_vs_concurrency.pdf)
 
 > **Paper Caption:**  
-> *Sustained authentication throughput ($\text{successful authentications/s}$) as a function of concurrent virtual users (1, 10, and 25 VUs) targeting a dedicated PostgreSQL 18.3 relational engine. End-point annotations report steady-state capacity at peak concurrency.*
+> *Sustained authentication throughput ($	ext{successful authentications/s}$) as a function of concurrent virtual users (1, 10, and 25 VUs) targeting a dedicated PostgreSQL 18.3 relational engine. End-point annotations report steady-state capacity at peak concurrency.*
 
 ---
 
@@ -70,17 +70,7 @@ All visuals are rendered at 300 DPI, follow the IEEE/ACM/Nature minimalist desig
 **Formats:** [PNG (300 DPI)](figures/fig6_latency_ecdf.png) | [Vector SVG](figures/fig6_latency_ecdf.svg) | [Vector PDF](figures/fig6_latency_ecdf.pdf)
 
 > **Paper Caption:**  
-> *Empirical cumulative distribution function (ECDF) curves comparing cumulative latency probabilities across all four authentication architectures. Dashed horizontal reference lines delineate the median ($\text{CDF} = 0.50$) and 95th percentile ($\text{CDF} = 0.95$) thresholds on a logarithmic abscissa.*
-
----
-
-## Figure 7: Empirical Security vs. Latency Trade-Off
-![Figure 7: Empirical Security vs. Latency Trade-Off](figures/fig7_security_performance_frontier.png)
-
-**Formats:** [PNG (300 DPI)](figures/fig7_security_performance_frontier.png) | [Vector SVG](figures/fig7_security_performance_frontier.svg) | [Vector PDF](figures/fig7_security_performance_frontier.pdf)
-
-> **Paper Caption:**  
-> *Empirical Pareto trade-off mapping empirical attack blocking rates (%) against median authentication latency ($P_{50}$). Bubble area scales proportionally with sustained throughput at 25 concurrent virtual users. Attack blocking rates were measured across replay attacks, expired challenge attempts, brute-force enumeration, and credential stuffing vectors.*
+> *Empirical cumulative distribution function (ECDF) curves comparing cumulative latency probabilities across all four authentication architectures. Dashed horizontal reference lines delineate the median ($	ext{CDF} = 0.50$) and 95th percentile ($	ext{CDF} = 0.95$) thresholds on a logarithmic abscissa.*
 
 ---
 
@@ -110,4 +100,4 @@ All visuals are rendered at 300 DPI, follow the IEEE/ACM/Nature minimalist desig
 **Formats:** [PNG (300 DPI)](figures/fig10_stage_contribution_percentage.png) | [Vector SVG](figures/fig10_stage_contribution_percentage.svg) | [Vector PDF](figures/fig10_stage_contribution_percentage.pdf)
 
 > **Paper Caption:**  
-> *Normalized 100% horizontal stacked bar chart showing the relative percentage share of each internal micro-stage. Highlights the dominance of visual matrix rendering ($40.2\%$) in QR workflows and CPU key derivation ($45.3\%$) in baseline password authentication.*
+> *Normalized 100% horizontal stacked bar chart showing the relative percentage share of each internal micro-stage computed from cumulative measured stage execution time ($N = 35,058$ total measured stages).*
